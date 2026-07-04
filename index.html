@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing English Quiz - Część II</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div id="app" class="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- Header -->
+    <div class="bg-indigo-600 p-6 text-white text-center">
+        <h1 class="text-2xl font-bold uppercase tracking-wide">Medical English Quiz - Część II</h1>
+        <div class="mt-2 text-indigo-200 font-semibold" id="progress-text">Pytanie 1 / 36</div>
+        <div class="w-full bg-indigo-800 h-3 mt-4 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-green-400 h-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Content -->
+    <div id="quiz-container" class="p-8">
+        <!-- Ekran startowy -->
+        <div id="start-screen" class="text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Test: Dopasowania, Prawda/Fałsz i Luki</h2>
+            <p class="text-gray-600 mb-8 text-lg">Przed Tobą zestaw 36 pytań z części drugiej. Zachowano oryginalne polskie wskazówki. Powodzenia!</p>
+            <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transform hover:scale-105 transition">
+                ROZPOCZNIJ QUIZ
+            </button>
+        </div>
+
+        <!-- Ekran pytań -->
+        <div id="question-screen" class="hidden">
+            <div id="question-text" class="text-xl text-gray-800 font-bold mb-6 leading-relaxed whitespace-pre-line">
+                <!-- Pytanie pojawi się tutaj -->
+            </div>
+            <div id="options-container" class="space-y-3">
+                <!-- Opcje pojawią się tutaj -->
+            </div>
+            <div id="feedback" class="mt-6 p-4 rounded-lg hidden"></div>
+            <button id="next-btn" onclick="nextQuestion()" class="mt-8 w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-6 rounded-xl hidden transition">
+                NASTĘPNE PYTANIE &rarr;
+            </button>
+        </div>
+
+        <!-- Ekran końcowy -->
+        <div id="end-screen" class="hidden text-center">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Quiz Zakończony!</h2>
+            <p class="text-xl text-gray-600 mb-6">Udało Ci się przejść przez wszystkie pytania.</p>
+            <div class="bg-indigo-50 p-6 rounded-2xl mb-8 inline-block w-full">
+                <div class="text-sm text-indigo-600 uppercase font-bold">Twój Wynik</div>
+                <div id="final-score" class="text-5xl font-black text-indigo-800 mt-2">0/36</div>
+            </div>
+            <button onclick="location.reload()" class="mt-4 text-indigo-600 font-semibold hover:underline">Spróbuj ponownie</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Format: [Pytanie, [Opcje], Indeks poprawnej odpowiedzi]
+    const questionsData = [
+        // Task 1: Matching beginnings with endings
+        ["Task 1. Match the ending:\n\nHelp the patient (pójść do toalety)", ["with washing and dressing", "takes their medication", "to go to the toilet", "can eat without difficulty"], 2],
+        ["Task 1. Match the ending:\n\nMake sure the patient (bierze leki)", ["takes their medication", "to move regularly", "swallows their medicines after meals", "to go to the toilet"], 0],
+        ["Task 1. Match the ending:\n\nAssist the patient (przy myciu i ubieraniu)", ["with washing and dressing", "to move regularly", "can eat without difficulty", "to go to the toilet"], 0],
+        ["Task 1. Match the ending:\n\nCheck if the patient (je bez trudności)", ["takes their medication", "swallows their medicines after meals", "can eat without difficulty", "with washing and dressing"], 2],
+        ["Task 1. Match the ending:\n\nEncourage the patient (do poruszania się regularnie)", ["to move regularly", "takes their medication", "to go to the toilet", "with washing and dressing"], 0],
+
+        // Task 2: Match words to definitions
+        ["Task 2. Match the word to the definition:\n\n... or PACU is where patients go to wake up after an operation.", ["Recovery", "CCU (Coronary Care Unit)", "anaesthetic", "analgesia"], 0],
+        ["Task 2. Match the word to the definition:\n\nPatients often need to breathe using an oxygen mask until they recover from the ...", ["maceration", "anaesthetic", "anti-emetic", "subcut injection"], 1],
+        ["Task 2. Match the word to the definition:\n\n... is a medication which stops patients vomiting or feeling sick.", ["analgesia", "anti-emetic", "anaesthetic", "maceration"], 1],
+        ["Task 2. Match the word to the definition:\n\nMedicine taken by mouth or by injection which stops pain is called ...", ["anti-emetic", "analgesia", "subcut injection", "Recovery"], 1],
+        ["Task 2. Match the word to the definition:\n\n... means: into the subcutaneous layer under the skin.", ["maceration", "subcut injection", "inflamed", "burning"], 1],
+        ["Task 2. Match the word to the definition:\n\n... pain feels like fire.", ["inflamed", "burning", "maceration", "incontinent"], 1],
+        ["Task 2. Match the word to the definition:\n\n... wound is red, painful and swollen.", ["inflamed", "burning", "maceration", "incontinent"], 0],
+        ["Task 2. Match the word to the definition:\n\nSomebody who is ... cannot control when urine or faeces come out of their body.", ["inflamed", "burning", "maceration", "incontinent"], 3],
+        ["Task 2. Match the word to the definition:\n\nThe rate at which a person breathes in and out (expressed as breathes per minute) is called ...", ["respiratory rate", "expiration", "Recovery", "CCU"], 0],
+        ["Task 2. Match the word to the definition:\n\n... is excessive softness caused by too much moisture.", ["maceration", "inflamed", "burning", "incontinent"], 0],
+
+        // Task 3: True or False
+        ["Task 3. True or False:\n\nDigital blood pressure monitor measures blood pressure automatically.", ["True", "False"], 0],
+        ["Task 3. True or False:\n\nIn a hospital, a porter is responsible for giving medication to patients.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nNurse: Is the pain dull or sharp?\nPatient: It's dull and constant.\n\nStatement: The pain comes and goes.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nNurse: Are you feeling nauseous?\nPatient: Yes, I don't feel like eating.\n\nStatement: The patient is very hungry.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nA 'slide sheet' is a piece of equipment used to help move a patient in bed.", ["True", "False"], 0],
+        ["Task 3. True or False:\n\nNurse: Take this tablet after meals.\nPatient: Before meals?\nNurse: No, after eating.\n\nStatement: The patient should take the medicine on an empty stomach.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nNurse: Are you allergic to any medication?\nPatient: Yes, penicillin.\n\nStatement: The patient can safely take penicillin.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nIf you want to clean the rubber seal on the end of the insulin pen, you use an alcohol wipe.", ["True", "False"], 0],
+        ["Task 3. True or False:\n\nInsulin should be kept in a cold place in order to guarantee the right temperature.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nNurse: Do you have any allergies?\nPatient: No, none that I know of.\n\nStatement: The patient has some allergies.", ["True", "False"], 1],
+        ["Task 3. True or False:\n\nNurse: Have you had this pain before?\nPatient: No, this is the first time.\n\nStatement: The patient has experienced this pain earlier.", ["True", "False"], 1],
+
+        // Task 4: Diabetes (Gap Fill)
+        ["Task 4. Diabetes text completion:\n\nPeople with (1) ___ have difficulty controlling the amount of glucose in their blood.", ["A) diabetes", "B) glycosuria", "C) diabetic ketoacidosis"], 0],
+        ["Task 4. Diabetes text completion:\n\nThe (2) ___ is an organ that produces insulin...", ["A) liver", "B) pancreas", "C) spleen"], 1],
+        ["Task 4. Diabetes text completion:\n\n...a hormone that helps glucose enter the body's cells and be used as (3) ___", ["A) waste", "B) fuel", "C) tissue"], 1],
+        ["Task 4. Diabetes text completion:\n\nWhen insulin levels are too low, blood sugar may rise and lead to (4) ___, which means glucose is present in the urine.", ["A) ketosis", "B) glycosuria", "C) acidosis"], 1],
+        ["Task 4. Diabetes text completion:\n\nIf a person takes too much insulin or skips a meal, they may develop (5) ___, a condition in which blood sugar levels become dangerously low.", ["A) hyperglycaemia", "B) hypoglycaemia", "C) necrosis"], 1],
+        ["Task 4. Diabetes text completion:\n\nIn severe cases, the patient may need a (6) ___ to quickly reduce blood glucose levels.", ["A) hypoglycaemic agent", "B) insulin", "C) analgesia"], 0],
+        ["Task 4. Diabetes text completion:\n\nWhen the body cannot use glucose properly, it begins to break down fat for energy. This process produces (7) ___", ["A) enzymes", "B) ketones", "C) antibodies"], 1],
+        ["Task 4. Diabetes text completion:\n\nHigh levels of these substances may lead to (8) ___, a serious complication of diabetes.", ["A) diabetic ketoacidosis", "B) haematuria", "C) hypertension"], 0],
+        ["Task 4. Diabetes text completion:\n\nTo manage their condition, some patients use insulin (9) ___ while others take oral medication.", ["A) catheters", "B) inhalers", "C) pumps"], 2],
+        ["Task 4. Diabetes text completion:\n\nRegular monitoring of the (10) ___ is essential for effective treatment.", ["A) BSL", "B) BMI", "C) CNS"], 0]
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let answered = false;
+
+    function startQuiz() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        answered = false;
+        const qData = questionsData[currentIdx];
+        
+        document.getElementById('question-text').innerText = qData[0];
+        document.getElementById('progress-text').innerText = `Pytanie ${currentIdx + 1} z ${questionsData.length}`;
+        document.getElementById('progress-bar').style.width = `${((currentIdx) / questionsData.length) * 100}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        qData[1].forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:bg-indigo-50 font-medium text-gray-700 flex items-center justify-between";
+            btn.innerHTML = `<span>${opt}</span><span class="icon hidden text-xl"></span>`;
+            btn.onclick = () => checkAnswer(index, btn);
+            container.appendChild(btn);
+        });
+
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function checkAnswer(selectedIndex, btn) {
+        if(answered) return;
+        answered = true;
+
+        const qData = questionsData[currentIdx];
+        const correctIndex = qData[2];
+        const allBtns = document.querySelectorAll('.option-btn');
+        const feedback = document.getElementById('feedback');
+        
+        allBtns.forEach(b => b.disabled = true);
+
+        if(selectedIndex === correctIndex) {
+            score++;
+            btn.classList.remove('border-gray-200');
+            btn.classList.add('border-green-500', 'bg-green-100', 'text-green-800');
+            btn.querySelector('.icon').innerHTML = '✅';
+            btn.querySelector('.icon').classList.remove('hidden');
+            feedback.innerText = "Poprawna odpowiedź!";
+            feedback.className = "mt-6 p-4 rounded-lg bg-green-100 text-green-800 font-bold border border-green-200";
+        } else {
+            btn.classList.remove('border-gray-200');
+            btn.classList.add('border-red-500', 'bg-red-100', 'text-red-800');
+            btn.querySelector('.icon').innerHTML = '❌';
+            btn.querySelector('.icon').classList.remove('hidden');
+            
+            // Podświetl prawidłową odpowiedź
+            allBtns[correctIndex].classList.add('border-green-500', 'bg-green-100', 'text-green-800');
+            
+            feedback.innerText = `Niestety nie. Poprawna odpowiedź to: ${qData[1][correctIndex]}`;
+            feedback.className = "mt-6 p-4 rounded-lg bg-red-100 text-red-800 font-bold border border-red-200";
+        }
+        
+        feedback.classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questionsData.length) {
+            showQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        document.getElementById('question-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = `${score} / ${questionsData.length}`;
+        document.getElementById('progress-bar').style.width = `100%`;
+        document.getElementById('progress-text').innerText = `Quiz Zakończony!`;
+    }
+</script>
+
+</body>
+</html>
