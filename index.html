@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing English Quiz - Część II</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div id="app" class="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div class="bg-indigo-600 p-6 text-white text-center">
+        <h1 class="text-2xl font-bold uppercase tracking-wide">Medical English Quiz - Część II</h1>
+        <div class="mt-2 text-indigo-200 font-semibold" id="progress-text">Pytanie 1 / 36</div>
+        <div class="w-full bg-indigo-800 h-3 mt-4 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-green-400 h-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div id="quiz-container" class="p-8">
+        <div id="start-screen" class="text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Test: Dopasowania, Prawda/Fałsz i Luki</h2>
+            <p class="text-gray-600 mb-8 text-lg">Przed Tobą zestaw 36 pytań z części drugiej. Zachowano oryginalne polskie wskazówki. Powodzenia!</p>
+            <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transform hover:scale-105 transition">
+                ROZPOCZNIJ QUIZ
+            </button>
+        </div>
+
+        <div id="question-screen" class="hidden">
+            <div id="question-text" class="text-xl text-gray-800 font-bold mb-6 leading-relaxed whitespace-pre-line">
+                </div>
+            <div id="options-container" class="space-y-3">
+                </div>
+            <div id="feedback" class="mt-6 p-4 rounded-lg hidden"></div>
+            <button id="next-btn" onclick="nextQuestion()" class="mt-8 w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-6 rounded-xl hidden transition">
+                NASTĘPNE PYTANIE &rarr;
+            </button>
+        </div>
+
+        <div id="end-screen" class="hidden text-center">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Quiz Zakończony!</h2>
+            <p class="text-xl text-gray-600 mb-6">Udało Ci się przejść przez wszystkie pytania.</p>
+            <div class="bg-indigo-50 p-6 rounded-2xl mb-8 inline-block w-full">
+                <div class="text-sm text-indigo-600 uppercase font-bold">Twój Wynik</div>
+                <div id="final-score" class="text-5xl font-black text-indigo-800 mt-2">0/36</div>
+            </div>
+            <button onclick="location.reload()" class="mt-4 text-indigo-600 font-semibold hover:underline">Spróbuj ponownie</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Format: [Pytanie, [Opcje], Indeks poprawnej odpowiedzi]
+    const questionsData = [
+        // Task 1: Matching beginnings with endings
+        ["Task 1. Match the ending:\n\nHelp the patient (pójść do toalety)", ["with washing and dressing", "takes their medication", "to go to the toilet", "can eat without difficulty"], 2],
+        ["Task 1. Match the ending:\n\n
